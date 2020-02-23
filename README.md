@@ -24,7 +24,7 @@ pip install opencv-python
 pip install cloudpickle
 pip install gym
 pip install matplotlib
-
+```
 # Hyperparameters
 
 <div align=center><img src = "https://github.com/hithmh/Actor-critic-with-stability-guarantee/blob/master/figures/hyperparameters.jpg" width=400 alt="figure"></div>
