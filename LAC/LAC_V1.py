@@ -264,7 +264,7 @@ class LAC(object):
     def _build_l(self, s, a, reuse=None, custom_getter=None):
         trainable = True if reuse is None else False
         with tf.variable_scope('Lyapunov', reuse=reuse, custom_getter=custom_getter):
-            n_l1 = 256#30
+            n_l1 = 64#30
             w1_s = tf.get_variable('w1_s', [self.s_dim, n_l1], trainable=trainable)
             w1_a = tf.get_variable('w1_a', [self.a_dim, n_l1], trainable=trainable)
             b1 = tf.get_variable('b1', [1, n_l1], trainable=trainable)
