@@ -28,6 +28,10 @@ pip install matplotlib
 
 Then you are free to run main.py to train agents. Hyperparameters for training LAC in Cartpole are ready to run by default. If you would like to test other environments and algorithms, please open variant.py and choose corresponding 'env_name' and 'algorithm_name'.
 
+# Environment
+<div align=center><img src = "https://github.com/hithmh/Actor-critic-with-stability-guarantee/blob/master/figures/snapshot.jpg" width=400 alt="figure"></div>
+<div align=center>Figure 1. Snapshot of environments used in this project. In (d) and (e) the state trajectories of uncontrolled GRN and CompGRN are shown.</div>
+
 # Hyperparameters
 Hyperparameters for reproduction are recorded in the following table.
 
