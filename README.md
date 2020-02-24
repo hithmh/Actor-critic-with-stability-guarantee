@@ -38,7 +38,7 @@ Hyperparameters for reproduction are recorded in the following table.
 <div align=center><img src = "https://github.com/hithmh/Actor-critic-with-stability-guarantee/blob/master/figures/hyperparameters.jpg" width=600 alt="figure"></div>
 
 For LAC, there are two networks: the policy network and the Lyapunov critic network. For the policy network, we use a fully-connected MLP with two hidden layers of 256 units, outputting the mean and standard deviations of a Gaussian distribution. 
-The output of the Lyapunov critic network is a square term, which is always non-negative. More specifically, we use a fully-connected MLP with two hidden layers and one output layer with different units as in the above table, outputting the feature vector <img src="http://www.forkosh.com/mathtex.cgi? f_\phi(s,a)">. The Lyapunov value is obtained by $L_c(s,a)=f_\phi^T(s,a)f_\phi(s,a)$. All the hidden layers use Relu activation function and we adopt the same invertible squashing function technique as~\citet{haarnoja2018soft} to the output layer of the policy network.
+The output of the Lyapunov critic network is a square term, which is always non-negative. More specifically, we use a fully-connected MLP with two hidden layers and one output layer with different units as in the above table, outputting the feature vector <img src="http://www.forkosh.com/mathtex.cgi?f_\phi(s,a)"><img src="http://latex.codecogs.com/gif.latex?f_\phi(s,a)" />. The Lyapunov value is obtained by $L_c(s,a)=f_\phi^T(s,a)f_\phi(s,a)$. All the hidden layers use Relu activation function and we adopt the same invertible squashing function technique as~\citet{haarnoja2018soft} to the output layer of the policy network.
 
 # Robustness and Generalization Evaluation of SPPO
 
