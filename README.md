@@ -47,9 +47,7 @@ As demonstrated in the figures, the SPPO policies could hardly deal with previou
 
 The SPPO algorithm is originally developed for the control tasks with safety constraints, i.e. keeping the expectation of discounted cumulative safety cost below a certain threshold. Though Lyapunov method is exploited, the approach is not aimed at providing stability guarantee.
 
-<div align=center><img src = "https://github.com/hithmh/Actor-critic-with-stability-guarantee/blob/master/figures/cartpole_cost-SPPO-dynamic.jpg" width=400 alt="figure"></div>
-
-<div align=center><img src = "https://github.com/hithmh/Actor-critic-with-stability-guarantee/blob/master/figures/oscillator-SPPO-dynamic-2.jpg" width=400 alt="figure"></div>
+<div align=center><img src = "https://github.com/hithmh/Actor-critic-with-stability-guarantee/blob/master/figures/parametric.jpg" width=400 alt="figure"></div>
 <div align=center>Figure 6. State trajectories over time under policies trained by SPPO and tested in the presence of parametric uncertainties and process noise, for CartPole and GRN.</div>
 
 <div align=center><img src = "https://github.com/hithmh/Actor-critic-with-stability-guarantee/blob/master/figures/oscillator-SPPO-dynamic.jpg" width=400 alt="figure"></div>
