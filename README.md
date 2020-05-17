@@ -16,7 +16,7 @@ conda activate test
 # Installation Environment
 
 ```bash
-git clone https://github.com/RobustStabilityGuaranteeRL/RobustStabilityGuaranteeRL
+git clone https://github.com/hithmh/Actor-critic-with-stability-guarantee
 pip install numpy==1.16.3
 pip install tensorflow==1.13.1
 pip install tensorflow-probability==0.6.0
