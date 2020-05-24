@@ -1034,7 +1034,7 @@ def train(variant):
 
     max_ep_steps = env_params['max_ep_steps']
     max_global_steps = env_params['max_global_steps']
-    store_last_n_paths = variant['store_last_n_paths']
+    store_last_n_paths = variant['num_of_training_paths']
 
 
     alg_name = variant['algorithm_name']

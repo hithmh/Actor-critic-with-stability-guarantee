@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 ROOT_DIR = './log'
 
 
-COLORS = [ 'red','salmon', 'brown','green', 'salmon','cyan', 'magenta','darkred',  'yellow', 'black', 'purple', 'pink',
+COLORS = [ 'red','salmon', 'brown','green', 'cyan', 'yellow', 'black', 'purple', 'pink', 'magenta','darkred',
           'teal',  'lightblue', 'orange', 'lavender', 'turquoise','lime',
         'darkgreen', 'tan',  'gold']
 
@@ -62,25 +62,44 @@ def load_results(args,alg_list, contents, env,rootdir=ROOT_DIR):
         results[name] = {}
     exp_dirs = os.listdir(rootdir)
 
+
     for exp_dir in exp_dirs:
 
         if exp_dir in env:
 
             exp_path = os.path.join(rootdir, exp_dir)
             alg_dirs = os.listdir(exp_path)
-            for alg_dir in alg_dirs:
+            if args['formal_plot']:
+                for alg_dir in alg_dirs:
 
-                if alg_dir in alg_list:
-                    alg_path = os.path.join(exp_path, alg_dir)
-                    if args['data'] == 'training':
-                        result = read_training_data(alg_path, content)
+                    if alg_dir in alg_list:
+                        alg_path = os.path.join(exp_path, alg_dir)
+                        if args['data'] == 'training':
+                            result = read_training_data(alg_path, content)
+                        else:
+                            result = read_eval_data(alg_path, args['eval_content'], content)
+
+                        results[exp_dir][alg_dir] = result
+
                     else:
-                        result = read_eval_data(alg_path, args['eval_content'], content)
+                        continue
+            else:
+                for alg_dir in alg_dirs:
+                    for alg_name in alg_list:
+                        if alg_dir.__contains__(alg_name):
 
-                    results[exp_dir][alg_dir] = result
+                            alg_path = os.path.join(exp_path, alg_dir)
+                            if args['data'] == 'training':
+                                result = read_training_data(alg_path, content)
+                            else:
+                                result = read_eval_data(alg_path, args['eval_content'], content)
 
-                else:
-                    continue
+                            results[exp_dir][alg_dir] = result
+
+                    else:
+                        continue
+
+
 
 
     return results
@@ -217,7 +236,7 @@ def plot_training_results(results, alg_list, contents, figsize = None):
         width = linewidth
         font = 20
     else:
-        width = 1
+        width = 3
         font = 14
     # plot ep rewards
     content_index = 0
@@ -238,7 +257,11 @@ def plot_training_results(results, alg_list, contents, figsize = None):
                 except KeyError:
                     continue
                 color_index = list(results[exp].keys()).index(alg)
-                length = len(result['total_timesteps'])
+                try:
+                    length = len(result['total_timesteps'])
+                except KeyError:
+                    continue
+
                 if args['formal_plot'] and alg in COLORS_map.keys():
                     color = COLORS_map[alg]
                 else:
@@ -427,10 +450,39 @@ if __name__ == '__main__':
 
     alg_list = [
         # 'LAC',
+        # 'SAC',
         # 'SAC_cost-new',
         # MJS1
         # 'LAC-lag',
-        'LAC',
+
+        #   minitaur-vel
+        # 'SAC_cost-vel-track-with-termination',
+        # 'LAC-vel-track-with-termination',
+        # 'SAC_cost-vel-track',
+        # 'LAC-vel-track',
+        # 'LAC-vel-track-random-target',
+        # 'LAC-vel-track-alpha=.9',
+
+
+        #   minitaur-pos
+        # 'LAC-pos-track', ## good
+        # 'SAC_cost-pos-track',
+        'LAC',  # good
+
+        'SAC',
+        'SPPO',
+        # 'LAC-pos-track-alpha=.9', ## good
+        # 'LAC-trial-pos-track',
+
+        # racecar
+        # 'LAC256-64-16', # almost the same
+        # 'SAC_cost',
+        # 'LAC',
+
+        # swimmer
+        # 'SAC_cost',
+        'LAC',  # good
+
         'SAC',
         'SPPO',
         # 'LAC-relu',
@@ -446,7 +498,9 @@ if __name__ == '__main__':
         # 'LAC-lag-.1-value',
         # osillator_complicated
         # 'LAC-horizon=5',
-        # 'SAC_cost',
+
+
+
         # 'SDDPG',
         # 'LAC-horizon=inf-quadratic',
         # 'LAC-horizon=5-quadratic',
@@ -469,11 +523,11 @@ if __name__ == '__main__':
         ]
 
     args = {
-        'data': ['training', 'eval'][0],
+        'data': ['training', 'eval'][1],
         'eval_content': [
             # 'length_of_pole-mass_of_cart',
-            'impulse',
-            # 'constant_impulse',
+            # 'impulse',
+            'constant_impulse',
             # 'various_disturbance-sin',
             # 'mass_of_pole',
             # 'length_of_pole',
@@ -481,7 +535,7 @@ if __name__ == '__main__':
         ],
 
         'plot_list': [str(i) for i in range(0, 10)],
-        'formal_plot':True,
+        'formal_plot': True,
         # 'formal_plot': False,
         # 'ylim':[0,20000],
         }
@@ -498,12 +552,15 @@ if __name__ == '__main__':
     ]
     env = [
         # 'cartpole_cost',
+        # 'minitaur',
+        # 'racecar',
+        'swimmer',
         # 'HalfCheetahcost-v0',
         # 'FetchReach-v1',
         # 'Antcost-v0',
         # 'Quadrotor-v1_cost',
         # 'oscillator',
-        'oscillator_complicated',
+        # 'oscillator_complicated',
         # 'MJS1',
         # 'MJS2',
         ]#[8:9]

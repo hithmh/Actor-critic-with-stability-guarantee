@@ -36,6 +36,7 @@ class LAC(object):
         # self.memory_capacity = variant['memory_capacity']
 
         self.batch_size = variant['batch_size']
+        self.network_structure = variant['network_structure']
         gamma = variant['gamma']
 
         tau = variant['tau']
@@ -53,8 +54,8 @@ class LAC(object):
             self.target_entropy = -self.a_dim   #lower bound of the policy entropy
         else:
             self.target_entropy = target_entropy
-        self.form_of_lyapunov = variant['form_of_lyapunov']
-
+        self.finite_horizon = variant['finite_horizon']
+        self.soft_predict_horizon = variant['soft_predict_horizon']
         with tf.variable_scope('Actor'):
             self.S = tf.placeholder(tf.float32, [None, s_dim], 's')
             self.S_ = tf.placeholder(tf.float32, [None, s_dim], 's_')
@@ -104,13 +105,12 @@ class LAC(object):
             self.prob = tf.reduce_mean(self.a_dist.prob(self.a))
 
             # 这个网络不及时更新参数, 用于给出 Actor 更新参数时的 Gradient ascent 强度
-            # self.l_actor = self._build_l(self.S, self.a, reuse=True)
+
             l_ = self._build_l(self.S_, a_, reuse=True, custom_getter=ema_getter)
             self.l_ = self._build_l(self.S_, lya_a_, reuse=True)
 
             # lyapunov constraint
             self.l_derta = tf.reduce_mean(self.l_ - self.l + (alpha3) * self.R)
-            # self.l_derta = tf.reduce_mean(self.l_ - self.l_actor + (alpha3) * self.R)
 
             labda_loss = -tf.reduce_mean(log_labda * self.l_derta)
             alpha_loss = -tf.reduce_mean(log_alpha * tf.stop_gradient(log_pis + self.target_entropy))
@@ -135,20 +135,16 @@ class LAC(object):
 
             next_log_pis = a_dist_.log_prob(a_)
             with tf.control_dependencies(target_update):  # soft replacement happened at here
-                if self.form_of_lyapunov == 'inf':
-                    l_target = self.R + gamma * (1 - self.terminal) * tf.stop_gradient(l_)  # Lyapunov critic - self.alpha * next_log_pis
-                elif self.form_of_lyapunov == 'finite':
-                    l_target = self.V
-                elif self.form_of_lyapunov == 'entire_horizon':
-                    l_target = self.V
-                elif self.form_of_lyapunov == 'soft_horizon':
-                    l_target = self.R - self.R_N_ + tf.stop_gradient(l_)
-                elif self.form_of_lyapunov == 'cost':
-                    l_target = self.R
+                if self.approx_value:
+                    if self.finite_horizon:
+                        if self.soft_predict_horizon:
+                            l_target = self.R - self.R_N_ + tf.stop_gradient(l_)
+                        else:
+                            l_target = self.V
+                    else:
+                        l_target = self.R + gamma * (1-self.terminal)*tf.stop_gradient(l_)  # Lyapunov critic - self.alpha * next_log_pis
                 else:
-                    raise IndexError
-                    print('unrecogonized Lyapunov form')
-
+                    l_target = self.R
 
                 self.l_error = tf.losses.mean_squared_error(labels=l_target, predictions=self.l)
                 self.ltrain = tf.train.AdamOptimizer(self.LR_L).minimize(self.l_error, var_list=l_params)
@@ -192,10 +188,10 @@ class LAC(object):
         bs_ = batch['s_']  # next state
         feed_dict = {self.a_input: ba,  self.S: bs, self.S_: bs_, self.R: br, self.terminal: bterminal,
                      self.LR_C: LR_C, self.LR_A: LR_A, self.LR_L: LR_L, self.LR_lag:LR_lag}
-
-        bv = batch['value']
-        b_r_ = batch['r_N_']
-        feed_dict.update({self.V:bv, self.R_N_:b_r_})
+        if self.finite_horizon:
+            bv = batch['value']
+            b_r_ = batch['r_N_']
+            feed_dict.update({self.V:bv, self.R_N_:b_r_})
 
         self.sess.run(self.opt, feed_dict)
         labda, alpha, l_error, entropy, a_loss = self.sess.run(self.diagnotics, feed_dict)
@@ -220,8 +216,10 @@ class LAC(object):
             base_distribution = tfp.distributions.MultivariateNormalDiag(loc=tf.zeros(self.a_dim), scale_diag=tf.ones(self.a_dim))
             epsilon = base_distribution.sample(batch_size)
             ## Construct the feedforward action
-            net_0 = tf.layers.dense(s, 256, activation=tf.nn.relu, name='l1', trainable=trainable)#原始是30
-            net_1 = tf.layers.dense(net_0, 256, activation=tf.nn.relu, name='l4', trainable=trainable)  # 原始是30
+            n1 = self.network_structure['actor'][0]
+            n2 = self.network_structure['actor'][1]
+            net_0 = tf.layers.dense(s, n1, activation=tf.nn.relu, name='l1', trainable=trainable)#原始是30
+            net_1 = tf.layers.dense(net_0, n2, activation=tf.nn.relu, name='l4', trainable=trainable)  # 原始是30
             mu = tf.layers.dense(net_1, self.a_dim, activation= None, name='a', trainable=trainable)
             log_sigma = tf.layers.dense(net_1, self.a_dim, None, trainable=trainable)
             log_sigma = tf.clip_by_value(log_sigma, *SCALE_DIAG_MIN_MAX)
@@ -264,15 +262,23 @@ class LAC(object):
     def _build_l(self, s, a, reuse=None, custom_getter=None):
         trainable = True if reuse is None else False
         with tf.variable_scope('Lyapunov', reuse=reuse, custom_getter=custom_getter):
-            n_l1 = 64#30
-            w1_s = tf.get_variable('w1_s', [self.s_dim, n_l1], trainable=trainable)
-            w1_a = tf.get_variable('w1_a', [self.a_dim, n_l1], trainable=trainable)
-            b1 = tf.get_variable('b1', [1, n_l1], trainable=trainable)
+            n1 = self.network_structure['critic'][0]
+
+            layers = []
+            w1_s = tf.get_variable('w1_s', [self.s_dim, n1], trainable=trainable)
+            w1_a = tf.get_variable('w1_a', [self.a_dim, n1], trainable=trainable)
+            b1 = tf.get_variable('b1', [1, n1], trainable=trainable)
             net_0 = tf.nn.relu(tf.matmul(s, w1_s) + tf.matmul(a, w1_a) + b1)
-            net_1 = tf.layers.dense(net_0, 64, activation=tf.nn.relu, name='l2', trainable=trainable)  # 原始是30
-            # return tf.abs(tf.layers.dense(net_1, 1, trainable=trainable))  # Q(s,a)
-            net_2 = tf.layers.dense(net_1, 16, activation=tf.nn.relu, name='l3', trainable=trainable)  # 原始是30
-            return tf.expand_dims(tf.reduce_sum(tf.square(net_2), axis=1),axis=1)  # Q(s,a)
+            layers.append(net_0)
+            for i in range(1, len(self.network_structure['critic'])):
+                n = self.network_structure['critic'][i]
+                layers.append(tf.layers.dense(layers[i-1], n, activation=tf.nn.relu, name='l'+str(i+1), trainable=trainable))
+
+
+            # net_1 = tf.layers.dense(net_0, n2, activation=tf.nn.relu, name='l2', trainable=trainable)  # 原始是30
+            # # return tf.abs(tf.layers.dense(net_1, 1, trainable=trainable))  # Q(s,a)
+            # net_2 = tf.layers.dense(net_1, 16, activation=tf.nn.relu, name='l3', trainable=trainable)  # 原始是30
+            return tf.expand_dims(tf.reduce_sum(tf.square(layers[-1]), axis=1),axis=1)  # Q(s,a)
             # return tf.square(tf.layers.dense(net_1, 1, trainable=trainable)) # Q(s,a)
 
     def save_result(self, path):
@@ -298,11 +304,11 @@ def train(variant):
     max_episodes = env_params['max_episodes']
     max_ep_steps = env_params['max_ep_steps']
     max_global_steps = env_params['max_global_steps']
-    store_last_n_paths = variant['store_last_n_paths']
+    store_last_n_paths = variant['num_of_training_paths']
     evaluation_frequency = variant['evaluation_frequency']
 
     policy_params = variant['alg_params']
-
+    policy_params['network_structure'] = env_params['network_structure']
 
 
 
@@ -337,13 +343,15 @@ def train(variant):
         'a_dim': a_dim,
         'd_dim': 1,
         'store_last_n_paths': store_last_n_paths,
-
         'memory_capacity': policy_params['memory_capacity'],
         'min_memory_size': policy_params['min_memory_size'],
         'history_horizon': policy_params['history_horizon'],
-        'value_horizon': policy_params['value_horizon'],
-        'form_of_lyapunov': policy_params['form_of_lyapunov']
+        'finite_horizon':policy_params['finite_horizon']
     }
+    if 'value_horizon' in policy_params.keys():
+        pool_params.update({'value_horizon': policy_params['value_horizon']})
+    else:
+        pool_params['value_horizon'] = None
     pool = Pool(pool_params)
     # For analyse
     Render = env_params['eval_render']
@@ -432,17 +440,19 @@ def train(variant):
 
                 training_diagnotic = evaluate_training_rollouts(last_training_paths)
                 if training_diagnotic is not None:
-                    eval_diagnotic = training_evaluation(variant, env, policy)
-                    [logger.logkv(key, eval_diagnotic[key]) for key in eval_diagnotic.keys()]
-                    training_diagnotic.pop('return')
+                    if variant['num_of_evaluation_paths'] > 0:
+                        eval_diagnotic = training_evaluation(variant, env, policy)
+                        [logger.logkv(key, eval_diagnotic[key]) for key in eval_diagnotic.keys()]
+                        training_diagnotic.pop('return')
                     [logger.logkv(key, training_diagnotic[key]) for key in training_diagnotic.keys()]
                     logger.logkv('lr_a', lr_a_now)
                     logger.logkv('lr_c', lr_c_now)
                     logger.logkv('lr_l', lr_l_now)
 
                     string_to_print = ['time_step:', str(global_step), '|']
-                    [string_to_print.extend([key, ':', str(eval_diagnotic[key]), '|'])
-                     for key in eval_diagnotic.keys()]
+                    if variant['num_of_evaluation_paths'] > 0:
+                        [string_to_print.extend([key, ':', str(eval_diagnotic[key]), '|'])
+                         for key in eval_diagnotic.keys()]
                     [string_to_print.extend([key, ':', str(round(training_diagnotic[key], 2)) , '|'])
                      for key in training_diagnotic.keys()]
                     print(''.join(string_to_print))

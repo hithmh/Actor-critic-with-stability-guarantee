@@ -293,7 +293,7 @@ def train(variant):
     max_episodes = env_params['max_episodes']
     max_ep_steps = env_params['max_ep_steps']
     max_global_steps = env_params['max_global_steps']
-    store_last_n_paths = variant['store_last_n_paths']
+    store_last_n_paths = variant['num_of_training_paths']
     evaluation_frequency = variant['evaluation_frequency']
 
     policy_params = variant['alg_params']
@@ -428,17 +428,19 @@ def train(variant):
 
                 training_diagnotic = evaluate_training_rollouts(last_training_paths)
                 if training_diagnotic is not None:
-                    eval_diagnotic = training_evaluation(variant, env, policy)
-                    [logger.logkv(key, eval_diagnotic[key]) for key in eval_diagnotic.keys()]
-                    training_diagnotic.pop('return')
+                    if variant['num_of_evaluation_paths'] > 0:
+                        eval_diagnotic = training_evaluation(variant, env, policy)
+                        [logger.logkv(key, eval_diagnotic[key]) for key in eval_diagnotic.keys()]
+                        training_diagnotic.pop('return')
                     [logger.logkv(key, training_diagnotic[key]) for key in training_diagnotic.keys()]
                     logger.logkv('lr_a', lr_a_now)
                     logger.logkv('lr_c', lr_c_now)
                     logger.logkv('lr_l', lr_l_now)
 
                     string_to_print = ['time_step:', str(global_step), '|']
-                    [string_to_print.extend([key, ':', str(eval_diagnotic[key]), '|'])
-                     for key in eval_diagnotic.keys()]
+                    if variant['num_of_evaluation_paths'] > 0:
+                        [string_to_print.extend([key, ':', str(eval_diagnotic[key]), '|'])
+                         for key in eval_diagnotic.keys()]
                     [string_to_print.extend([key, ':', str(round(training_diagnotic[key], 2)), '|'])
                      for key in training_diagnotic.keys()]
                     print(''.join(string_to_print))

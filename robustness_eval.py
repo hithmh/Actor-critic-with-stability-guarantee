@@ -25,6 +25,10 @@ def get_distrubance_function(env_name):
         disturbance_step = oscillator_disturber
     elif 'MJS' in env_name:
         disturbance_step = MJS_disturber
+    elif 'minitaur' in env_name:
+        disturbance_step = minitaur_disturber
+    elif 'swimmer' in env_name:
+        disturbance_step = swimmer_disturber
     else:
         print('no disturber designed for ' + env_name)
         raise NameError
@@ -58,7 +62,7 @@ def cartpole_disturber(time, s, action, env, eval_params, form_of_eval, disturbe
     else:
         s_, r, done, info = env.step(action)
         done = False
-    done = False
+    # done = False
     return s_, r, done, info
 
 
@@ -82,8 +86,48 @@ def halfcheetah_disturber(time, s, action, env, eval_params, form_of_eval, distu
     s_, r, done, info = env.step(action+d)
     return s_, r, done, info
 
+def minitaur_disturber(time, s, action, env, eval_params, form_of_eval, disturber=None):
+    if form_of_eval == 'impulse':
+        if time ==eval_params['impulse_instant']:
+
+            d = eval_params['magnitude'] * (-np.sign(action))
+        else:
+            d = np.zeros_like(action)
+    elif form_of_eval == 'constant_impulse':
+        if time % eval_params['impulse_instant'] == 0:
+            d = eval_params['magnitude'] * (-np.sign(action))
+        else:
+            d = np.zeros_like(action)
+    elif form_of_eval=='various_disturbance':
+        if eval_params['form'] == 'sin':
+            d = np.sin(2*np.pi/ eval_params['period'] * time + initial_pos) * eval_params['magnitude'] * np.ones_like(action)
+    else:
+        d = np.zeros_like(action)
+    s_, r, done, info = env.step(action+d)
+    return s_, r, done, info
 
 def ant_disturber(time, s, action, env, eval_params, form_of_eval, disturber=None):
+    if form_of_eval == 'impulse':
+        if time ==eval_params['impulse_instant']:
+
+            d = eval_params['magnitude'] * (-np.sign(action))
+        else:
+            d = np.zeros_like(action)
+    elif form_of_eval == 'constant_impulse':
+        if time % eval_params['impulse_instant'] == 0:
+            d = eval_params['magnitude'] * (-np.sign(action))
+        else:
+            d = np.zeros_like(action)
+    elif form_of_eval=='various_disturbance':
+        if eval_params['form'] == 'sin':
+            d = np.sin(2*np.pi/ eval_params['period'] * time + initial_pos) * eval_params['magnitude'] * np.ones_like(action)
+
+    else:
+        d = np.zeros_like(action)
+    s_, r, done, info = env.step(action+d)
+    return s_, r, done, info
+
+def swimmer_disturber(time, s, action, env, eval_params, form_of_eval, disturber=None):
     if form_of_eval == 'impulse':
         if time ==eval_params['impulse_instant']:
 
@@ -433,6 +477,7 @@ def constant_impulse(variant):
 
     eval_params = variant['eval_params']
     policy_params = variant['alg_params']
+    policy_params['network_structure'] = env_params['network_structure']
 
     build_func = get_policy(variant['algorithm_name'])
     if 'Fetch' in env_name or 'Hand' in env_name:
@@ -669,7 +714,7 @@ def training_evaluation(variant, env, policy, disturber= None):
 
     die_count = 0
     seed_average_cost = []
-    for i in range(variant['store_last_n_paths']):
+    for i in range(variant['num_of_evaluation_paths']):
 
         cost = 0
         s = env.reset()
@@ -685,6 +730,8 @@ def training_evaluation(variant, env, policy, disturber= None):
                 action = a_lowerbound + (a + 1.) * (a_upperbound - a_lowerbound) / 2
 
             s_, r, done, info = env.step(action)
+            # done = False
+
             cost += r
             if 'Fetch' in env_name or 'Hand' in env_name:
                 s_ = np.concatenate([s_[key] for key in s_.keys()])

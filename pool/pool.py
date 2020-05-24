@@ -13,7 +13,6 @@ class Pool(object):
         store_last_n_paths = variant['store_last_n_paths']
         self.paths = deque(maxlen=store_last_n_paths)
         self.reset()
-
         if 'history_horizon' in variant.keys():
             self.history_horizon = variant['history_horizon']
         else:
@@ -29,17 +28,14 @@ class Pool(object):
 
 
         }
-        if 'form_of_lyapunov' in variant.keys():
-            self.form_of_lyapunov = variant['form_of_lyapunov']
-            self.memory.update({'value': np.zeros([self.history_horizon + 1, 1])}),
-            self.memory.update({'r_N_': np.zeros([self.history_horizon + 1, 1])}),
-        else:
-            self.form_of_lyapunov = None
 
 
 
-
-        self.horizon = variant['value_horizon']
+        if 'finite_horizon' in variant.keys():
+            if variant['finite_horizon']:
+                self.memory.update({'value': np.zeros([self.history_horizon+1, 1])}),
+                self.memory.update({'r_N_': np.zeros([self.history_horizon + 1, 1])}),
+                self.horizon = variant['value_horizon']
         self.memory_pointer = 0
         self.min_memory_size = variant['min_memory_size']
 
@@ -71,12 +67,7 @@ class Pool(object):
                 r = np.concatenate((r, last_r*np.ones([self.horizon+1, 1])), axis=0)
                 value = []
                 r_N_ = []
-                if self.form_of_lyapunov == 'finite':
-                    [value.append(r[i:i+self.horizon, 0].sum()) for i in range(path_length)]
-                elif self.form_of_lyapunov == 'entire_horizon':
-                    [value.append(r[i:, 0].sum()) for i in range(path_length)]
-                else:
-                    value = np.squeeze(np.zeros_like(r))
+                [value.append(r[i:i+self.horizon, 0].sum()) for i in range(path_length)]
                 [r_N_.append(r[i + self.horizon+1, 0]) for i in range(path_length)]
                 value = np.array(value)
                 r_N_ = np.array(r_N_)

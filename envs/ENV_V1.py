@@ -177,8 +177,6 @@ class CartPoleEnv_adv(gym.Env):
         # cost = 0.1+10*max(0, (self.theta_threshold_radians - abs(theta))/self.theta_threshold_radians) \
         #     #+ 5*max(0, (self.x_threshold - abs(x-self.target_pos))/self.x_threshold)\
         cost = 1* x**2/100 + 20 *(theta/ self.theta_threshold_radians)**2
-
-        # cost = self.cost(x, theta, theta_dot, x_dot)[0]
         l_rewards = 0
         if done:
             cost = 100.
@@ -202,12 +200,6 @@ class CartPoleEnv_adv(gym.Env):
         self.state[0] = self.np_random.uniform(low=-5, high=5)
         self.steps_beyond_done = None
         return np.array(self.state)
-
-    def cost(self, x, theta, theta_dot, x_dot):
-        # cost = 1 * x ** 2 + 5* (theta ) ** 2  #+ theta_dot ** 2 + x_dot ** 2
-        cost = 10 * np.abs(x) + np.abs(theta) + .5*np.abs(theta_dot) + .1*np.abs(x_dot)
-        # cost = cost/10
-        return cost
 
     def render(self, mode='human'):
         screen_width = 800
@@ -250,7 +242,7 @@ class CartPoleEnv_adv(gym.Env):
             self.target = rendering.Line((self.target_pos * scale + screen_width / 2.0, 0),
                                          (self.target_pos * scale + screen_width / 2.0, screen_height))
             self.target.set_color(1, 0, 0)
-            # self.viewer.add_geom(self.target)
+            self.viewer.add_geom(self.target)
 
 
             # # Render the constrain position
