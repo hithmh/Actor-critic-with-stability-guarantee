@@ -266,7 +266,7 @@ class GuassianMLP_from_flatten_params(object):
     # def flat_to_params(self, flattened_params):
     #     return unflatten_tensors(flattened_params, self.get_params_shape())
 
-class SPPO(object):
+class CPO(object):
     def __init__(self, a_dim, s_dim, args,
                  delta=0.01,
                  reg_coeff = 1e-5,
