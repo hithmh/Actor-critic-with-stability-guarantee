@@ -510,7 +510,7 @@ def get_policy(name):
     elif 'MPC' in name:
         from LAC.MPC import MPC as build_func
     elif 'SPPO' in name:
-        from CPO.CPO2 import CPO as build_func
+        from CPO.CPO2 import SPPO as build_func
     # elif 'CPO' in name:
     #     from CPO.CPO2 import CPO as build_func
     elif 'DDPG' in name:
