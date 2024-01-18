@@ -6,7 +6,7 @@ Welcome to the official repository for the research paper, [Actor-Critic Reinfor
 
 ### Prerequisites for Docker Usage
 
-Due to dependencies on specific, older versions of Python, we strongly recommend using Docker for replicating the experiments. First, ensure Docker is installed on your system. Installation instructions can be found [here](https://docs.docker.com/get-docker/).
+Due to dependencies on specific, older versions of Python, we strongly recommend using Docker to replicate the experiments. First, ensure Docker is installed on your system. Installation instructions can be found [here](https://docs.docker.com/get-docker/).
 
 ### Building the Docker Image
 
@@ -30,12 +30,12 @@ Once the Docker image is built, you can run the experiments with the following c
 docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
 ```
 
-This setup facilitates terminal logging, graphical output, and stores the experiment results in the `log` directory on your local machine. Replace `your_image_id` with the actual ID of your Docker image.
+This setup enables terminal logging and graphical output while saving the experiment results in the log directory on your local machine. Ensure that you replace `your_image_id` with the actual ID of your Docker image.
 
-For those who prefer an integrated development environment, particularly for altering experiment parameters, it's suggested to use [Visual Studio Code](https://code.visualstudio.com/) along with its [Devcontainer](https://code.visualstudio.com/docs/remote/containers) extension. If opting not to use these tools, ensure that the `variant.py` file is accessible within the Docker container by appending the following to your `docker run` command:
+For those who prefer an integrated development environment, particularly for altering experiment parameters, it's suggested to use [Visual Studio Code](https://code.visualstudio.com/) along with its [Devcontainer](https://code.visualstudio.com/docs/remote/containers) extension. If opting not to use these tools, ensure that the `variant.py` and [my_plotter.py](./my_plotter.py) files are accessible within the Docker container by appending the following to your `docker run` command:
 
 ```bash
--v ./variant.py:/han_et_al_2020/variant.py
+-v ./variant.py:/han_et_al_2020/variant.py -v ./my_plotter.py:/han_et_al_2020/my_plotter.py
 ```
 
 ### Setting Up a Local Environment
@@ -124,13 +124,19 @@ conda activate han2020
    python robustness_eval.py
    ```
 
-> [!IMPORTANT]
-> The types of robustness evaluations used in [Han et al., 2020](https://arxiv.org/abs/2004.14288) are:
->
-> - `param_variation`: For the CartPole environment, to assess robustness against changes in pole length. Adjust the `pole_length` parameter under `param_variation` in the `EVAL` constant of [variant.py](./variant.py) to set the evaluation range.
-> - `impulse`: For other environments, to test robustness against impulse disturbances applied at 20-second intervals. Modify the `magnitude_range` under the `impulse` field in `EVAL` to set the disturbance magnitude. `impulse_instant` can also be adjusted to change the disturbance timing.
+#### Tips to replicate the results in the paper
 
-<!--TODO: Add oscillator uncertainty experiments--->
+The robustness evaluation of [Han et al., 2020](https://arxiv.org/abs/2004.14288) focuses on two robustness scenarios: *dynamic uncertainties* and *external disturbances*. Below are some tips to speed up the paper's results replication.
+
+##### Dynamic Uncertainties
+
+The paper evaluates the algorithms' robustness against dynamic uncertainties in the CartPole and Oscillator environments:
+   - **CartPole**: In the CartPole environment, the length of the pole is varied to assess robustness against changes in pole length. The relevant variables to replicate the results are found in the `param_variation.pole_length` field of the  `EVAL_PARAMS` constant of the [variant.py](./variant.py) file.
+   - **Oscillator**: In the Oscillator environment, several parameters of the oscillator are varied to assess robustness against changes in oscillator parameters. The variation of these parameters can not be directly done through the [variant.py](./variant.py) file and should be manually adjusted in the [envs/oscillator.py](./envs/oscillator.py) file.
+
+##### External Disturbances
+
+The paper evaluates the algorithms' robustness against external disturbances in the CartPole, HalfCheetah, FetchReach, GRN, Swimmer, and Minitaur environments. In each of these environments, the algorithms are evaluated against a recurring impulse disturbance applied to the system at a fixed rate. The relevant variables to replicate the results are found in the `impulse` field of the  `EVAL_PARAMS` constant of the [variant.py](./variant.py) file.
 
 ### Viewing Results
 
