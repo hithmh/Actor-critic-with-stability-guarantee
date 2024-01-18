@@ -1,109 +1,109 @@
-# Actor-critic-with-stability-guarantee
+# Actor-Critic Reinforcement Learning with Stability Guarantee
 
-This repository contains the code of the paper: "[Actor-Critic Reinforcement Learning for Control with Stability Guarantee by Han et al. 2020](https://arxiv.org/abs/2004.14288)." Below are the steps to set up the experiment environment, as outlined in the paper. It also contains a Dockerfile for easy replication of the paper's findings.
+This repository provides the implementation for the research paper, [Actor-Critic Reinforcement Learning for Control with Stability Guarantee](https://arxiv.org/abs/2004.14288) by Han et al., 2020. It includes complete setup instructions and a Dockerfile for replicating the experiments detailed in the paper.
 
-## Setup Instructions
+## Getting Started
 
-### Local Setup
+### Prerequisites for Docker
 
-#### Pre-requisites
+Given the older Python version dependency, using Docker is advised. Ensure you have Docker installed on your system. You can find installation guides [here](https://docs.docker.com/get-docker/).
 
-- [Python 3.6](https://www.python.org/downloads/release/python-360/)
-- [Mujoco 2.0](https://www.roboti.us/download.html) (required for mujoco environments)
-- [Docker](https://docs.docker.com/get-docker/) (optional)
+### Building the Docker Image
 
-#### Installation steps
+The repository includes a Dockerfile for setting up the experimental environment.
 
-1. Ensure the following system packages are installed on your system:
+1. In your terminal, navigate to the cloned repository directory.
+2. Run the following command to build the Docker image:
 
    ```bash
-   sudo apt update && sudo apt install build-essential \
-       libosmesa6-dev \
-       patchelf
+   docker build -t your_image_name .
    ```
 
-2. Clone the repository
+> [!NOTE]\
+> Replace `your_image_name` with a name of your choice.
+
+### Running Experiments in Docker
+
+After building the image, execute experiments with:
+
+```bash
+docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
+```
+
+This command enables terminal logging, graphical output, and saving experiment results in your local machine's `log` directory. Replace `your_image_id` with your Docker image ID.
+
+For a more integrated experience, especially for modifying experiment parameters, consider using [Vscode](https://code.visualstudio.com/) with the [Devcontainer](https://code.visualstudio.com/docs/remote/containers) extension. If you don't want to use these tools, you must ensure the `variant.py` file is available in the Docker container. You can do this by adding the following line to the `docker run` command:
+
+```bash
+-v ./variant.py:/han_et_al_2020/variant.py
+```
+
+### Local Environment Setup
+
+> [!WARNING]\
+> The following instructions are for setting up a local environment. The provided Dockerfile is recommended for replicating the experiments (see [Building the Docker Image](#building-the-docker-image)).
+
+#### Dependencies
+
+- Python 3.6: [Download here](https://www.python.org/downloads/release/python-360/)
+- Mujoco 2.0: [Download here](https://www.roboti.us/download.html) (Necessary for Mujoco environments)
+
+#### Steps for Installation
+
+1. Install necessary system packages:
+
+   ```bash
+   sudo apt update && sudo apt install build-essential libosmesa6-dev patchelf
+   ```
+
+2. Clone the repository:
 
    ```bash
    git clone https://github.com/hithmh/Actor-critic-with-stability-guarantee
    ```
 
-3. Install the dependencies
+3. Install Python dependencies:
 
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements/requirements.txt
    ```
 
-#### Conda Environment
+#### Setting Up a Conda Environment
 
-From the general python package sanity perspective, it is a good idea to use [Conda environments](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to make sure packages from different projects do not interfere with each other.
-
-To create a Conda env with python3, run the following:
+For package management and isolation, use Conda:
 
 ```bash
 conda create -n han2020 python=3.6
-```
-
-To activate the Conda env:
-
-```bash
 conda activate han2020
 ```
 
-### Docker Setup
+## Usage
 
-#### Docker Build Instructions
+### Running Experiments
 
-Since the Python version used in this project is relatively old, it is recommended that Docker be used to run the code. The Dockerfile in the repository automates copying the required code files, installing the necessary dependencies and configuring the environment for experiment execution.
+1. Modify the [variant.py](./variant.py) file to set experiment parameters (e.g., `algorithm_name`, `env_name`).
+2. Start the experiments:
 
-1. Open your terminal in the directory where you cloned the repository.
-2. Execute the following command to build the Docker image:
+   **Docker:**
 
    ```bash
-   docker build -t <image_name> .
+   docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
    ```
 
-> ![NOTE]\
-> Replace `<image_name>` with your desired Docker image name.
-
-## Usage Instructions
-
-### Running the experiments
-
-#### Local Instructions
-
-1. Change the [variant.py](./variant.py) file to specify the experiment parameters (e.g., adjust `algorithm_name` to change the algorithm and `env_name` to change the environment).
-2. Run the experiments with:
+   **Local:**
 
    ```bash
    python main.py
    ```
 
-> ![IMPORTANT]\
-> If you want to use the Mujoco environments explained in the paper, you need to install [Mujoco 2.0](https://www.roboti.us/download.html) and obtain a (free) license key. Then, you need to set the `LD_LIBRARY_PATH` environment variable to the path of the `bin` directory of Mujoco 2.0. See the [Mujoco documentation](https://www.roboti.us/download.html) for more details.
+> [!IMPORTANT]\
+> For Mujoco environments, install Mujoco 2.0 and set `LD_LIBRARY_PATH` to its `bin` directory. Refer to the [Mujoco documentation](https://www.roboti.us/download.html) for more details.
 
-#### Docker Instructions
+### Analysing Experiment Results
 
-1. Download the `variant.py` file from the [original code repository](https://github.com/hithmh/Actor-critic-with-stability-guarantee/blob/master/variant.py) into the current directory using:
+Results are stored in the `log` directory. Each experiment's folder includes the following:
 
-   ```bash
-   wget https://raw.githubusercontent.com/hithmh/Actor-critic-with-stability-guarantee/master/variant.py
-   ```
+- `progress.csv`: Training progress data.
+- `policy`: Folder with the trained TensorFlow 1 policy.
 
-2. Modify the experiment parameters in `variant.py` as needed (e.g., adjust `algorithm_name` to change the algorithm and `env_name` to change the environment).
-3. Run the experiments with:
-
-   ```bash
-   docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./variant.py:/han_et_al_2020/variant.py -v ./log:/han_et_al_2020/log <image_id>
-   ```
-
-This command ensures graphical output capability, logs to the terminal, accesses the modified `variant.py`, and stores experiment results in your local machine's `log` directory. Remember to replace `<image_id>` with the ID of your Docker image.
-
-### Inspecting Experiment Results
-
-The experiment results are stored in the `log` directory. The `log` directory contains a sub-directory for each experiment which again contains a sub-directory for each seeded run of the experiment. Each experiment directory contains the following files:
-
-- `progress.csv`: Contains the training progress of the experiment.
-- `policy`: Folder that contains the trained [TF1](https://www.tensorflow.org/) policy.
-
-You can visualize the training progress of a given experiment by running:
+Use the provided scripts or your preferred data analysis tools to visualise training progress.
