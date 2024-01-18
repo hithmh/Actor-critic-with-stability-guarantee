@@ -6,7 +6,21 @@
 		"context": "..",
 		"dockerfile": "../Dockerfile"
 	},
-	"features": {
-		"ghcr.io/devcontainers/features/conda:1": {}
-	}
+	"runArgs": [
+		"-e",
+		"DISPLAY=${localEnv:DISPLAY}",
+		"-v",
+		"/tmp/.X11-unix:/tmp/.X11-unix:ro"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python@2022.8.1"
+			]
+		},
+		"settings": {
+			"python.pythonpath": "/opt/conda/envs/han2020/bin/python"
+		}
+	},
+	"postCreateCommand": "echo 'If you need to run GUI applications inside this Docker container, remember to execute `xhost +local:docker` on your host machine to enable X11 forwarding. You can remove it again with `xhost -local:docker` when you are done.'"
 }
