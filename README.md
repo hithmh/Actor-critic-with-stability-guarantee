@@ -1,62 +1,62 @@
 # Actor-Critic Reinforcement Learning with Stability Guarantee
 
-This repository provides the implementation for the research paper, [Actor-Critic Reinforcement Learning for Control with Stability Guarantee](https://arxiv.org/abs/2004.14288) by Han et al., 2020. It includes complete setup instructions and a Dockerfile for replicating the experiments detailed in the paper.
+Welcome to the official repository for the research paper, [Actor-Critic Reinforcement Learning for Control with Stability Guarantee](https://arxiv.org/abs/2004.14288) by Han et al., 2020. This repository contains the complete codebase and detailed instructions for replicating the research experiments. It also includes a Dockerfile to facilitate easy setup and consistent environment configuration.
 
 ## Getting Started
 
-### Prerequisites for Docker
+### Prerequisites for Docker Usage
 
-Given the older Python version dependency, using Docker is advised. Ensure you have Docker installed on your system. You can find installation guides [here](https://docs.docker.com/get-docker/).
+Due to dependencies on specific, older versions of Python, we strongly recommend using Docker for replicating the experiments. First, ensure Docker is installed on your system. Installation instructions can be found [here](https://docs.docker.com/get-docker/).
 
 ### Building the Docker Image
 
-The repository includes a Dockerfile for setting up the experimental environment.
+This repository provides a Dockerfile to create the required experimental environment.
 
-1. In your terminal, navigate to the cloned repository directory.
-2. Run the following command to build the Docker image:
+1. Open your terminal and navigate to the directory where you've cloned this repository.
+2. Execute the command below to build the Docker image:
 
    ```bash
    docker build -t your_image_name .
    ```
 
-> [!NOTE]\
-> Replace `your_image_name` with a name of your choice.
+> [!NOTE]
+> Replace `your_image_name` with a preferred name for your Docker image.
 
-### Running Experiments in Docker
+### Running Experiments Using Docker
 
-After building the image, execute experiments with:
+Once the Docker image is built, you can run the experiments with the following command:
 
 ```bash
 docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
 ```
 
-This command enables terminal logging, graphical output, and saving experiment results in your local machine's `log` directory. Replace `your_image_id` with your Docker image ID.
+This setup facilitates terminal logging, graphical output, and stores the experiment results in the `log` directory on your local machine. Replace `your_image_id` with the actual ID of your Docker image.
 
-For a more integrated experience, especially for modifying experiment parameters, consider using [Vscode](https://code.visualstudio.com/) with the [Devcontainer](https://code.visualstudio.com/docs/remote/containers) extension. If you don't want to use these tools, you must ensure the `variant.py` file is available in the Docker container. You can do this by adding the following line to the `docker run` command:
+For those who prefer an integrated development environment, particularly for altering experiment parameters, it's suggested to use [Visual Studio Code](https://code.visualstudio.com/) along with its [Devcontainer](https://code.visualstudio.com/docs/remote/containers) extension. If opting not to use these tools, ensure that the `variant.py` file is accessible within the Docker container by appending the following to your `docker run` command:
 
 ```bash
 -v ./variant.py:/han_et_al_2020/variant.py
 ```
 
-### Local Environment Setup
+### Setting Up a Local Environment
 
-> [!WARNING]\
-> The following instructions are for setting up a local environment. The provided Dockerfile is recommended for replicating the experiments (see [Building the Docker Image](#building-the-docker-image)).
+> [!WARNING]
+> The steps below detail setting up a local environment. However, to ensure consistency and reproducibility, using the Dockerfile (as detailed in [Building the Docker Image](#building-the-docker-image)) is recommended.
 
 #### Dependencies
 
-- Python 3.6: [Download here](https://www.python.org/downloads/release/python-360/)
-- Mujoco 2.0: [Download here](https://www.roboti.us/download.html) (Necessary for Mujoco environments)
+- Python 3.6: [Download Python 3.6 here](https://www.python.org/downloads/release/python-360/)
+- Mujoco 2.0: [Download Mujoco 2.0 here](https://www.roboti.us/download.html) (Necessary for Mujoco-based environments)
 
-#### Steps for Installation
+#### Installation Steps
 
-1. Install necessary system packages:
+1. Install required system packages:
 
    ```bash
    sudo apt update && sudo apt install build-essential libosmesa6-dev patchelf
    ```
 
-2. Clone the repository:
+2. Clone this repository:
 
    ```bash
    git clone https://github.com/hithmh/Actor-critic-with-stability-guarantee
@@ -68,9 +68,9 @@ For a more integrated experience, especially for modifying experiment parameters
    pip install -r requirements/requirements.txt
    ```
 
-#### Setting Up a Conda Environment
+#### Creating a Conda Environment
 
-For package management and isolation, use Conda:
+For package management and environment isolation, consider using Conda:
 
 ```bash
 conda create -n han2020 python=3.6
@@ -81,29 +81,76 @@ conda activate han2020
 
 ### Running Experiments
 
-1. Modify the [variant.py](./variant.py) file to set experiment parameters (e.g., `algorithm_name`, `env_name`).
-2. Start the experiments:
+1. Adjust experiment parameters in the [variant.py](./variant.py) file, such as `algorithm_name`, `env_name`.
+2. To start the experiments:
 
-   **Docker:**
+   **In Docker:**
 
    ```bash
    docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
    ```
 
-   **Local:**
+   **Locally:**
 
    ```bash
    python main.py
    ```
 
-> [!IMPORTANT]\
-> For Mujoco environments, install Mujoco 2.0 and set `LD_LIBRARY_PATH` to its `bin` directory. Refer to the [Mujoco documentation](https://www.roboti.us/download.html) for more details.
+> [!IMPORTANT]
+> For Mujoco environments, ensure Mujoco 2.0 is installed and set `LD_LIBRARY_PATH` to its `bin` directory. Consult the [Mujoco documentation](https://www.roboti.us/download.html) for detailed instructions.
 
-### Analysing Experiment Results
+### Running Robustness Experiments
 
-Results are stored in the `log` directory. Each experiment's folder includes the following:
+1. In the `VARIANT` constant within [variant.py](./variant.py), modify evaluation parameters:
 
-- `progress.csv`: Training progress data.
-- `policy`: Folder with the trained TensorFlow 1 policy.
+   - `evaluation_form`: Choose the type of robustness evaluation.
+   - `eval_list`: Specify the trained policy for evaluation, typically the combination of `algorithm_name` and `additional_description` from training.
+   - `trials_for_eval`: Define the seeds for evaluation, e.g., `[0, 1, 2]`.
 
-Use the provided scripts or your preferred data analysis tools to visualise training progress.
+2. Adjust settings in the `EVAL` constant in [variant.py](./variant.py), which contains configurations for each type of evaluation.
+
+3. Execute the robustness evaluation:
+
+   **Using Docker:**
+
+   ```bash
+
+   docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id python robustness_eval.py
+   ```
+
+   **Locally:**
+
+   ```bash
+   python robustness_eval.py
+   ```
+
+> [!IMPORTANT]
+> The types of robustness evaluations used in [Han et al., 2020](https://arxiv.org/abs/2004.14288) are:
+>
+> - `param_variation`: For the CartPole environment, to assess robustness against changes in pole length. Adjust the `pole_length` parameter under `param_variation` in the `EVAL` constant of [variant.py](./variant.py) to set the evaluation range.
+> - `impulse`: For other environments, to test robustness against impulse disturbances applied at 20-second intervals. Modify the `magnitude_range` under the `impulse` field in `EVAL` to set the disturbance magnitude. `impulse_instant` can also be adjusted to change the disturbance timing.
+
+<!--TODO: Add oscillator uncertainty experiments--->
+
+### Viewing Results
+
+Training and evaluation results are stored in the `log` directory, organized by `<environment_name>/<algorithm_name><additional_description>`. Evaluation results are in a subfolder named `eval`. Training results are in folders named after the experiment iteration and include:
+
+- `progress.csv`: Data on training progress.
+- `policy`: Folder with the TensorFlow 1 trained policy.
+
+To view training progress, edit the [my_plotter.py](./my_plotter.py) file. Update `alg_list` with the policies you wish to compare, and modify `args`, `content`, and `env` to match your experiment parameters. Then, run:
+
+**In Docker:**
+
+```bash
+docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id python my_plotter.py
+```
+
+**Locally:**
+
+```bash
+python my_plotter.py
+```
+
+Set `args.data` to `training` for training results and to `evaluation` for evaluation results.
