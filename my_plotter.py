@@ -536,7 +536,6 @@ if __name__ == '__main__':
             # 'mass_of_cart',
         ],
 
-        # 'plot_list': [str(i) for i in range(0, 10)],
         'plot_list': [str(i) for i in range(0, 10)],
         'formal_plot': True,
         # 'formal_plot': False,
