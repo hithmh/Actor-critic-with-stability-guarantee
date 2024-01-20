@@ -173,10 +173,10 @@ class CartPoleEnv_adv(gym.Env):
         # cost1=(self.x_threshold - abs(x))/self.x_threshold
         e1 = (abs(x)) / self.x_threshold
         e2 = (abs(theta)) / self.theta_threshold_radians
-        cost = COST_V1(r1, r2, e1, e2, x, x_dot, theta, theta_dot)
+        # cost = COST_V1(r1, r2, e1, e2, x, x_dot, theta, theta_dot)
         # cost = 0.1+10*max(0, (self.theta_threshold_radians - abs(theta))/self.theta_threshold_radians) \
         #     #+ 5*max(0, (self.x_threshold - abs(x-self.target_pos))/self.x_threshold)\
-        cost = 1* x**2/100 + 20 *(theta/ self.theta_threshold_radians)**2
+        cost = (x / self.x_threshold) ** 2 + 20 * (theta / self.theta_threshold_radians) ** 2
         l_rewards = 0
         if done:
             cost = 100.
