@@ -27,7 +27,7 @@ This repository provides a Dockerfile to create the required experimental enviro
 Once the Docker image is built, you can run the experiments with the following command:
 
 ```bash
-docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
+docker run -t -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
 ```
 
 This setup enables terminal logging and graphical output while saving the experiment results in the log directory on your local machine. Ensure that you replace `your_image_id` with the actual ID of your Docker image.
@@ -87,7 +87,7 @@ conda activate han2020
    **In Docker:**
 
    ```bash
-   docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
+   docker run -t -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id
    ```
 
    **Locally:**
@@ -115,7 +115,7 @@ conda activate han2020
 
    ```bash
 
-   docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id python robustness_eval.py
+   docker run -t -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id python robustness_eval.py
    ```
 
    **Locally:**
@@ -150,7 +150,7 @@ To view training progress, edit the [my_plotter.py](./my_plotter.py) file. Updat
 **In Docker:**
 
 ```bash
-docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id python my_plotter.py
+docker run -t -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro -v ./log:/han_et_al_2020/log your_image_id python my_plotter.py
 ```
 
 **Locally:**
