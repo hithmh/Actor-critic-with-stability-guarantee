@@ -13,9 +13,8 @@ class swimmer_env(SwimmerEnv):
         self.do_simulation(a, self.frame_skip)
         xposafter = self.sim.data.qpos[0]
         vel = (xposafter - xposbefore) / self.dt
-        reward_fwd = abs( vel - self.target_vel)
+        reward_fwd = (vel - self.target_vel) ** 2
         reward_ctrl = - ctrl_cost_coeff * np.square(a).sum()
         reward = reward_fwd + reward_ctrl
         ob = self._get_obs()
         return ob, reward, False, dict(reward_fwd=reward_fwd, reward_ctrl=reward_ctrl)
-
