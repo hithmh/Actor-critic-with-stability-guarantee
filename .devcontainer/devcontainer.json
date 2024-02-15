@@ -1,0 +1,26 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+	"name": "Existing Dockerfile",
+	"build": {
+		"context": "..",
+		"dockerfile": "../Dockerfile"
+	},
+	"runArgs": [
+		"-e",
+		"DISPLAY=${localEnv:DISPLAY}",
+		"-v",
+		"/tmp/.X11-unix:/tmp/.X11-unix:ro"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python@2022.8.1"
+			]
+		},
+		"settings": {
+			"python.pythonpath": "/opt/conda/envs/han2020/bin/python"
+		}
+	},
+	"postCreateCommand": "echo 'If you need to run GUI applications inside this Docker container, remember to execute `xhost +local:docker` on your host machine to enable X11 forwarding. You can remove it again with `xhost -local:docker` when you are done.'"
+}

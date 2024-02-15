@@ -5,28 +5,29 @@ import ENV.env
 SEED = None
 
 VARIANT = {
+    'env_name': 'swimmer',
     # 'env_name': 'FetchReach-v1',
     # 'env_name': 'Antcost-v0',
     # 'env_name': 'oscillator',
     # 'env_name': 'MJS1',
-    'env_name': 'minitaur',
-    # 'env_name': 'swimmer',
+    # 'env_name': 'minitaur',
     # 'env_name': 'racecar',
     # 'env_name': 'MJS2',
     # 'env_name': 'oscillator_complicated',
     # 'env_name': 'HalfCheetahcost-v0',
     # 'env_name': 'cartpole_cost',
-    #training prams
+
+    # Training params
     'algorithm_name': 'LAC',
     # 'algorithm_name': 'SAC_cost',
     # 'algorithm_name': 'SPPO',
     # 'algorithm_name': 'DDPG',
     # 'algorithm_name': 'CPO',
 
+    'additional_description': '-alpha=.1',
     # 'additional_description': '-N=50',
     # 'additional_description': '-64-64',
     # 'additional_description': '-horizon=5-alpha3=.1',
-    'additional_description': '-alpha=.1',
     # 'additional_description': '-pos-track-alpha=1.',
     # 'additional_description': '-pos-track-low-lambda',
     # 'additional_description': '-trial',
@@ -40,13 +41,14 @@ VARIANT = {
     'start_of_trial': 0,
 
     #evaluation params
-    'evaluation_form': 'constant_impulse',
+    'evaluation_form': 'impulse',
+    # 'evaluation_form': 'constant_impulse',
     # 'evaluation_form': 'dynamic',
-    # 'evaluation_form': 'impulse',
     # 'evaluation_form': 'various_disturbance',
     # 'evaluation_form': 'param_variation',
     # 'evaluation_form': 'trained_disturber',
     'eval_list': [
+        "LAC-alpha=.1",
         # cartpole
         # 'LAC-horizon=3-alpha3=.1',
         # 'LAC-horizon=inf-alpha3=.1',
@@ -78,7 +80,7 @@ VARIANT = {
         #oscillator
         # 'LAC',
         # 'SAC_cost',
-        'SPPO',
+        # 'SPPO',
     ],
     'trials_for_eval': [str(i) for i in range(0, 3)],
 
@@ -524,5 +526,3 @@ def get_eval(name):
         from LAC.LAC_V1 import eval
 
     return eval
-
-

@@ -449,6 +449,8 @@ def main(args, alg_list, measure_list, env):
 if __name__ == '__main__':
 
     alg_list = [
+        "LAC-alpha=.1",
+
         # 'LAC',
         # 'SAC',
         # 'SAC_cost-new',
@@ -467,10 +469,10 @@ if __name__ == '__main__':
         #   minitaur-pos
         # 'LAC-pos-track', ## good
         # 'SAC_cost-pos-track',
-        'LAC',  # good
+        # 'LAC',  # good
 
-        'SAC',
-        'SPPO',
+        # 'SAC',
+        # 'SPPO',
         # 'LAC-pos-track-alpha=.9', ## good
         # 'LAC-trial-pos-track',
 
@@ -481,10 +483,10 @@ if __name__ == '__main__':
 
         # swimmer
         # 'SAC_cost',
-        'LAC',  # good
+        # 'LAC',  # good
 
-        'SAC',
-        'SPPO',
+        # 'SAC',
+        # 'SPPO',
         # 'LAC-relu',
         # 'LAC-biquad',
         # 'LAC-horizon=3-alpha3=.1',
@@ -523,11 +525,11 @@ if __name__ == '__main__':
         ]
 
     args = {
-        'data': ['training', 'eval'][1],
+        'data': ['training', 'eval'][0],
         'eval_content': [
             # 'length_of_pole-mass_of_cart',
-            # 'impulse',
-            'constant_impulse',
+            'impulse',
+            # 'constant_impulse',
             # 'various_disturbance-sin',
             # 'mass_of_pole',
             # 'length_of_pole',
@@ -565,4 +567,3 @@ if __name__ == '__main__':
         # 'MJS2',
         ]#[8:9]
     main(args, alg_list, content, env)
-
