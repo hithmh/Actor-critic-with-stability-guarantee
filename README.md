@@ -19,7 +19,7 @@ This repository provides a Dockerfile to create the required experimental enviro
    docker build -t your_image_name .
    ```
 
-> [!NOTE]
+> [!NOTE]\
 > Replace `your_image_name` with a preferred name for your Docker image.
 
 ### Running Experiments Using Docker
@@ -40,7 +40,7 @@ For those who prefer an integrated development environment, particularly for alt
 
 ### Setting Up a Local Environment
 
-> [!WARNING]
+> [!WARNING]\
 > The steps below detail setting up a local environment. However, to ensure consistency and reproducibility, using the Dockerfile (as detailed in [Building the Docker Image](#building-the-docker-image)) is recommended.
 
 #### Dependencies
@@ -96,7 +96,7 @@ conda activate han2020
    python main.py
    ```
 
-> [!IMPORTANT]
+> [!IMPORTANT]\
 > For Mujoco environments, ensure Mujoco 2.0 is installed and set `LD_LIBRARY_PATH` to its `bin` directory. Consult the [Mujoco documentation](https://www.roboti.us/download.html) for detailed instructions.
 
 ### Running Robustness Experiments
