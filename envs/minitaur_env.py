@@ -9,14 +9,14 @@ OBSERVATION_EPS = 0.01
 
 class minitaur_env(e.MinitaurBulletEnv):
     def __init__(self, **kwargs):
-        self._velocity_weight = 0.
+        self._velocity_weight = 1.0
         self.target_velocity = 1.
         self.target_position_range = np.asarray([1, 1])
         self.target_velocity_range = np.asarray(1)
         super(minitaur_env, self).__init__(**kwargs)
 
 
-        self._distance_weight = 1.
+        self._distance_weight = 0.
         self._energy_weight = 0.
         self._drift_weight = 0
         self._shake_weight = 0
