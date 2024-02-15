@@ -99,6 +99,24 @@ conda activate han2020
 > [!IMPORTANT]\
 > For Mujoco environments, ensure Mujoco 2.0 is installed and set `LD_LIBRARY_PATH` to its `bin` directory. Consult the [Mujoco documentation](https://www.roboti.us/download.html) for detailed instructions.
 
+#### Switching Lyapunov Candidates
+
+The original codebase from [Han et al. 2020](https://arxiv.org/abs/2004.14288) includes several parameters (`soft_predict_horizon`, `history_horizon`) not used in the paper. These can be left at their default values. To switch between the infinite and finite horizon Lyapunov candidates, adjust the `finite_horizon` and `value_horizon` parameters as follows:
+
+**Infinite Horizon Lyapunov Candidate**
+
+```python
+finite_horizon = False
+value_horizon = 0
+```
+
+**Finite Horizon Lyapunov Candidate**
+
+```python
+finite_horizon = True
+value_horizon = 5
+```
+
 ### Running Robustness Experiments
 
 1. In the `VARIANT` constant within [variant.py](./variant.py), modify evaluation parameters:
