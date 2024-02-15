@@ -2,6 +2,18 @@
 
 Welcome to the official repository for the research paper, [Actor-Critic Reinforcement Learning for Control with Stability Guarantee](https://arxiv.org/abs/2004.14288) by Han et al., 2020. This repository contains the complete codebase and detailed instructions for replicating the research experiments. It also includes a Dockerfile to facilitate easy setup and consistent environment configuration.
 
+## Environments Used in Han et al., 2020
+
+This section lists the specific environments used in the [Han et al. 2020](https://arxiv.org/abs/2004.14288) paper. The original repository contains many and sometimes multiple versions of the same environment, so this list clarifies which versions were used in the paper. The environments are listed in the same order as in the paper.
+
+1. **CartPole**: The paper uses the `CartPoleEnv_adv` environment from the `ENV_V1` module. You can find this in the [envs folder](./envs/ENV_V1.py).
+2. **HalfCheetah**: The paper uses the `HalfCheetahEnv_cost` environment from the `half_cheetah_cost` module. This is located in the [ENV/env/mujoco folder](./ENV/env/mujoco/half_cheetah_cost.py).
+3. **FetchReach**: The paper uses the `FetchReachEnv` environment directly from the `gym.envs.envs.robotics.fetch.reach` module. This is part of the [gym library](https://github.com/openai/gym/blob/0.12.1/gym/envs/robotics/fetch/reach.py).
+4. **GRN**: The paper uses the `oscillator` environment from the `oscillator` module. This is located in the [envs folder](./envs/oscillator.py).
+5. **GRNComp**: The paper uses the `oscillator` environment from the `oscillator_complicated` module. This is located in the [envs folder](./envs/oscillator_complicated.py).
+6. **Swimmer**: The paper uses the `swimmer_env` environment from the `swimmer` module. This is located in the [envs folder](./envs/swimmer.py).
+7. **Minitaur**: The paper uses the `minitaur_env` environment from the `minitaur_env` module. This is located in the [envs folder](./envs/minitaur_env.py).
+
 ## Getting Started
 
 ### Prerequisites for Docker Usage
@@ -37,6 +49,9 @@ For those who prefer an integrated development environment, particularly for alt
 ```bash
 -v ./variant.py:/han_et_al_2020/variant.py -v ./my_plotter.py:/han_et_al_2020/my_plotter.py
 ```
+
+> [!NOTE]\
+> On some systems, you may need to run `xhost +local:docker` before running the Docker image. This command allows the Docker container to connect to your machine's X server, enabling graphical output. To revoke this access, run `xhost -local:docker`.
 
 ### Setting Up a Local Environment
 
