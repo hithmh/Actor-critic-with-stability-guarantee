@@ -197,7 +197,7 @@ class pccs_env(gym.Env):
         alpha = 0.05
         beta = 1.2852
         y_limit = 0.5
-        cost = alpha * np.clip(y[0]-y_limit, 0, np.inf)/3600 #+ beta * u[1]/3600
+        cost = alpha * np.clip(y[0]-y_limit, 0, np.inf)/3600 + beta * u[1]/3600
 
         return cost
 
