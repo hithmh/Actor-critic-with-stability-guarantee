@@ -9,7 +9,7 @@ VARIANT = {
     # 'env_name': 'Antcost-v0',
     # 'env_name': 'oscillator',
     # 'env_name': 'MJS1',
-    'env_name': 'minitaur',
+    'env_name': 'pccs_with_disturbance',
     # 'env_name': 'swimmer',
     # 'env_name': 'racecar',
     # 'env_name': 'MJS2',
@@ -17,8 +17,8 @@ VARIANT = {
     # 'env_name': 'HalfCheetahcost-v0',
     # 'env_name': 'cartpole_cost',
     #training prams
-    'algorithm_name': 'LAC',
-    # 'algorithm_name': 'SAC_cost',
+    # 'algorithm_name': 'LAC',
+    'algorithm_name': 'SAC_cost',
     # 'algorithm_name': 'SPPO',
     # 'algorithm_name': 'DDPG',
     # 'algorithm_name': 'CPO',
@@ -26,7 +26,7 @@ VARIANT = {
     # 'additional_description': '-N=50',
     # 'additional_description': '-64-64',
     # 'additional_description': '-horizon=5-alpha3=.1',
-    'additional_description': '-alpha=.1',
+    'additional_description': '',
     # 'additional_description': '-pos-track-alpha=1.',
     # 'additional_description': '-pos-track-low-lambda',
     # 'additional_description': '-trial',
@@ -89,6 +89,42 @@ if VARIANT['algorithm_name'] == 'RARL':
 VARIANT['log_path']='/'.join(['./log', VARIANT['env_name'], VARIANT['algorithm_name'] + VARIANT['additional_description']])
 
 ENV_PARAMS = {
+    'pccs_with_disturbance': {
+        'max_ep_steps': 800,
+        'max_global_steps': int(1e5),
+        'max_episodes': int(1e5),
+        # 'disturbance dim': 2,
+        'eval_render': False,
+        'has_output': True,
+        'dist_dim': 1,
+        # 'z_dim': 7,
+
+        # 'pred_dims_constrol': [0, 1],
+        # 'pred_dims': [i for i in range(0, 42)],
+        # 'pred_dims': [i for i in range(0, 16)],
+        ### MPC params
+        'reference': np.array([1, 1],
+                              dtype=np.float32),
+        'Q': np.diag([1., 1.]),
+        'R': np.diag(0.1 * np.ones([2])),
+        # 'EMPC_R': np.array([8 / 1.8 / 1000 * 1333 * 0.3 / 100000, 0.004 * 0.3 / 100000]),
+        'EMPC_R': np.array([1, 1, 1]),
+        # 'EMPC_R': np.array([0, 0]),
+        'end_weight': 100.,
+        'control_horizon': 10,
+        'MPC_pred_horizon': 30,
+        'apply_state_constraints': False,
+        'apply_action_constraints': True,
+
+        'y_bound_high': np.array([393.15]),
+        'y_bound_low': np.array([385.15]),
+
+        'n_seeds': 500,
+        'max_iters': 10,
+        'elite_ratio': 0.1,
+        'alpha': 0.1,
+        'epsilon': 0.001,
+    },
     'cartpole_cost': {
         'max_ep_steps': 250,
         'max_global_steps': int(1e6),
@@ -410,6 +446,10 @@ RENDER = True
 def get_env_from_name(name):
     if name == 'cartpole_cost':
         from envs.ENV_V1 import CartPoleEnv_adv as dreamer
+        env = dreamer()
+        env = env.unwrapped
+    elif name == 'pccs_with_disturbance':
+        from envs.pccs_env_2 import pccs_env as dreamer
         env = dreamer()
         env = env.unwrapped
     elif name == 'cartpole_cost_v2':
