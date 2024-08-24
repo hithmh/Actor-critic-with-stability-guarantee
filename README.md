@@ -1,5 +1,7 @@
 # Actor-critic-with-stability-guarantee
 
+This is the code for the paper [Actor-critic reinforcement learning for control with stability guarantee](https://ieeexplore.ieee.org/abstract/document/9146733).
+
 ## Conda environment
 From the general python package sanity perspective, it is a good idea to use conda environments to make sure packages from different projects do not interfere with each other.
 
