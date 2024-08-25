@@ -403,8 +403,9 @@ def train(variant):
             s_, r, done, info = env.step(action)
 
             if 'Fetch' in env_name or 'Hand' in env_name:
+                r = np.abs(r)  # NOTE: Should be positive definite reward for Lyapunov stability (bug in Han's code).
                 s_ = np.concatenate([s_[key] for key in s_.keys()])
-                if info['done'] > 0:
+                if info['is_success'] > 0:  # NOTE: 'done' should be 'is_success' (bug in Han's code).
                     done = True
 
             if training_started:

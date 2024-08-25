@@ -732,11 +732,12 @@ def training_evaluation(variant, env, policy, disturber= None):
             s_, r, done, info = env.step(action)
             # done = False
 
-            cost += r
             if 'Fetch' in env_name or 'Hand' in env_name:
+                r = np.abs(r)  # NOTE: Should be positive definite reward for Lyapunov stability (bug in Han's code).
                 s_ = np.concatenate([s_[key] for key in s_.keys()])
-                if info['done'] > 0:
+                if info['is_success'] > 0:  # NOTE: 'done' should be 'is_success' (bug in Han's code).
                     done = True
+            cost += r
 
             if j == max_ep_steps - 1:
                 done = True
@@ -792,4 +793,3 @@ if __name__ == '__main__':
         else:
             instant_impulse(VARIANT)
         tf.reset_default_graph()
-
